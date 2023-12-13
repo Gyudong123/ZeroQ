@@ -89,12 +89,42 @@ if __name__ == '__main__':
     quantized_model.eval()
     quantized_model = quantized_model.cpu()
 
-    # # Test the final quantized model before updating activation range.
+    
+    Rdataloader = getRandomData(dataset=args.dataset,
+                               batch_size=args.batch_size,
+                               for_inception=args.model.startswith('inception'))
+    
+
+    # Quantize single-precision model to 8-bit model
+    quantized_model = quantize_model(model)
+    # Freeze BatchNorm statistics
+    quantized_model.eval()
+    quantized_model = quantized_model.cpu()
+
+    update(quantized_model, test_loader)
+    print('****** Quantization based on Training data Finished ******')
     freeze_model(quantized_model)
     test(quantized_model, test_loader)
-    unfreeze_model(quantized_model)
+
+    # # Test the final quantized model on Random Data.
+
+    # Quantize single-precision model to 8-bit model
+    quantized_model = quantize_model(model)
+    # Freeze BatchNorm statistics
+    quantized_model.eval()
+    quantized_model = quantized_model.cpu()
+    update(quantized_model, Rdataloader)
+    print('****** Quantization based on Random data Finished ******')
+    freeze_model(quantized_model)
+    test(quantized_model, test_loader)
+    
     
     # Update activation range according to distilled data
+    # Quantize single-precision model to 8-bit model
+    quantized_model = quantize_model(model)
+    # Freeze BatchNorm statistics
+    quantized_model.eval()
+    quantized_model = quantized_model.cpu()
     update(quantized_model, dataloader)
     print('****** Zero Shot Quantization Finished ******')
 
