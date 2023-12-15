@@ -100,7 +100,6 @@ if __name__ == '__main__':
     # Freeze BatchNorm statistics
     quantized_model.eval()
     quantized_model = quantized_model.cpu()
-
     update(quantized_model, test_loader)
     print('****** Quantization based on Training data Finished ******')
     freeze_model(quantized_model)
